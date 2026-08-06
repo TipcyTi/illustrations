@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的图库</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #f5f5f7;
+            color: #1d1d1f;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        .subtitle {
+            text-align: center;
+            color: #86868b;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        #status {
+            text-align: center;
+            padding: 40px;
+            color: #86868b;
+            font-size: 15px;
+        }
+        #gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background: #fff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+        .card img {
+            width: 100%;
+            height: 240px;
+            object-fit: cover;
+            display: block;
+            background: #f0f0f0;
+        }
+        .card .info {
+            padding: 14px 16px;
+        }
+        .card .name {
+            font-size: 14px;
+            color: #333;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .card .meta {
+            font-size: 12px;
+            color: #86868b;
+            margin-top: 4px;
+        }
+        .error {
+            color: #ff3b30;
+            text-align: center;
+            padding: 40px;
+        }
+        #lightbox {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.92);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            cursor: zoom-out;
+        }
+        #lightbox.active { display: flex; }
+        #lightbox img {
+            max-width: 92%;
+            max-height: 92%;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+        @media (max-width: 600px) {
+            #gallery { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+            .card img { height: 160px; }
+            h1 { font-size: 22px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📷 我的图库</h1>
+        <p class="subtitle">自动同步 GitHub 仓库图片</p>
+        <div id="status">正在加载图片...</div>
+        <div id="gallery"></div>
+    </div>
+
+    <div id="lightbox" onclick="this.classList.remove('active')">
+        <img src="" alt="放大查看">
+    </div>
+
+    <script>
+        const statusEl = document.getElementById('status');
+        const galleryEl = document.getElementById('gallery');
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = lightbox.querySelector('img');
+
+        fetch('/images.json')
+            .then(r => {
+                if (!r.ok) throw new Error('找不到图片清单，请确认已部署');
+                return r.json();
+            })
+            .then(({ images }) => {
+                if (!images || images.length === 0) {
+                    statusEl.textContent = '暂无图片，请上传至 public/images/ 文件夹';
+                    return;
+                }
+                statusEl.style.display = 'none';
+                
+                images.forEach((img, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.innerHTML = `
+                        <img src="${img.url}" loading="lazy" alt="${img.name}" onerror="this.parentElement.style.display='none'">
+                        <div class="info">
+                            <div class="name">${img.name}</div>
+                            <div class="meta">#${index + 1}</div>
+                        </div>
+                    `;
+                    card.querySelector('img').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        lightboxImg.src = img.url;
+                        lightbox.classList.add('active');
+                    });
+                    galleryEl.appendChild(card);
+                });
+            })
+            .catch(err => {
+                statusEl.innerHTML = `<div class="error">加载失败：${err.message}</div>`;
+            });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') lightbox.classList.remove('active');
+        });
+    </script>
+</body>
+</html>
