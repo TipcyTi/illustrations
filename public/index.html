@@ -1,164 +1,391 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的图库</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background: #f5f5f7;
-            color: #1d1d1f;
-            line-height: 1.6;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 40px 20px;
-        }
-        h1 {
-            text-align: center;
-            margin-bottom: 10px;
-            font-size: 28px;
-            font-weight: 600;
-        }
-        .subtitle {
-            text-align: center;
-            color: #86868b;
-            margin-bottom: 30px;
-            font-size: 14px;
-        }
-        #status {
-            text-align: center;
-            padding: 40px;
-            color: #86868b;
-            font-size: 15px;
-        }
-        #gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-        }
-        .card {
-            background: #fff;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-            transition: transform 0.2s, box-shadow 0.2s;
-            cursor: pointer;
-        }
-        .card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
-        }
-        .card img {
-            width: 100%;
-            height: 240px;
-            object-fit: cover;
-            display: block;
-            background: #f0f0f0;
-        }
-        .card .info {
-            padding: 14px 16px;
-        }
-        .card .name {
-            font-size: 14px;
-            color: #333;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .card .meta {
-            font-size: 12px;
-            color: #86868b;
-            margin-top: 4px;
-        }
-        .error {
-            color: #ff3b30;
-            text-align: center;
-            padding: 40px;
-        }
-        #lightbox {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.92);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            cursor: zoom-out;
-        }
-        #lightbox.active { display: flex; }
-        #lightbox img {
-            max-width: 92%;
-            max-height: 92%;
-            object-fit: contain;
-            border-radius: 8px;
-        }
-        @media (max-width: 600px) {
-            #gallery { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
-            .card img { height: 160px; }
-            h1 { font-size: 22px; }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Ti">
+  <meta name="description" content="Ti">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="apple-touch-icon" href="Ti.png">
+  <link rel="apple-touch-startup-image" href="Ti.png">
+  <title>Ti</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-text-size-adjust: none; }
+    html { width: 100%; height: 100%; min-height: 100vh; min-height: -webkit-fill-available; }
+    body {
+      width: 100%; height: 100%; min-height: 100vh; min-height: -webkit-fill-available;
+      overflow: hidden; background: #F1F2ED; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: #000; font-weight: 700; position: fixed; top: 0; left: 0; right: 0; bottom: 0; touch-action: none;
+    }
+    :root {
+      --safe-area-inset-top: env(safe-area-inset-top, 0px);
+      --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-area-inset-left: env(safe-area-inset-left, 0px);
+      --safe-area-inset-right: env(safe-area-inset-right, 0px);
+      --ti-image-radius: 16px;
+      --accent: #1a1a1a;
+      --muted: #6e6e73;
+      --surface: #ffffff;
+      --surface-2: #e8e9e4;
+    }
+    @supports not (top: env(safe-area-inset-top)) {
+      :root {
+        --safe-area-inset-top: constant(safe-area-inset-top, 0px);
+        --safe-area-inset-bottom: constant(safe-area-inset-bottom, 0px);
+        --safe-area-inset-left: constant(safe-area-inset-left, 0px);
+        --safe-area-inset-right: constant(safe-area-inset-right, 0px);
+      }
+    }
+
+    /* ===== 认证页 ===== */
+    #auth-container {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background-color: #F1F2ED; display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      padding-top: var(--safe-area-inset-top); padding-bottom: var(--safe-area-inset-bottom);
+      padding-left: var(--safe-area-inset-left); padding-right: var(--safe-area-inset-right);
+      z-index: 100; overflow: hidden; transition: opacity 0.4s ease;
+    }
+    .auth-button-container { width: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
+    .auth-button {
+      background: none; color: #000; border: none; border-radius: 0; padding: 20px 15px;
+      font-size: 72px; font-weight: 400; cursor: pointer; transition: all 0.3s ease;
+      font-family: 'Snell Roundhand', 'Snell Roundhand Black', cursive; position: relative; overflow: hidden;
+      letter-spacing: -1px; line-height: 0.9; text-shadow: 0 0 15px rgba(0,0,0,0.4); width: 75%; max-width: 400px;
+    }
+    .auth-button:active { transform: scale(0.95); opacity: 0.7; }
+    .auth-button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .auth-button-loading .button-text-container { opacity: 0; }
+    .auth-button-loading::after {
+      content: ""; position: absolute; width: 24px; height: 24px; top: 50%; left: 50%; margin-left: -12px; margin-top: -12px;
+      border: 2px solid #000; border-radius: 50%; border-top-color: transparent; animation: spin 1s ease infinite;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .button-text-container { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; }
+    .button-main-text { font-size: 1em; margin-bottom: 2px; width: 100%; text-align: center; }
+    .button-sub-text { font-size: 0.35em; letter-spacing: 3px; opacity: 0.8; width: 100%; text-align: center; }
+
+    /* ===== 内容页（画廊） ===== */
+    #content-container {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: #F1F2ED; z-index: 50; opacity: 0; transition: opacity 0.4s ease; overflow: hidden;
+      padding-top: var(--safe-area-inset-top); padding-bottom: var(--safe-area-inset-bottom);
+    }
+    #content-container.active { opacity: 1; display: block; }
+    .gallery-scroll {
+      width: 100%; height: 100%; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch;
+      padding: 20px; padding-bottom: calc(20px + var(--safe-area-inset-bottom));
+    }
+    .gallery-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 24px; padding-top: 8px;
+    }
+    .gallery-title { font-size: 34px; font-family: 'Snell Roundhand', 'Snell Roundhand Black', cursive; font-weight: 400; letter-spacing: -0.5px; }
+    .gallery-meta { font-size: 13px; color: var(--muted); font-weight: 500; margin-top: 4px; }
+    .gallery-settings-btn {
+      width: 40px; height: 40px; border-radius: 50%; border: none; background: var(--surface);
+      display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      font-size: 18px; transition: transform 0.2s;
+    }
+    .gallery-settings-btn:active { transform: scale(0.92); }
+
+    #gallery {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px;
+    }
+    @media (min-width: 768px) { #gallery { grid-template-columns: repeat(3, 1fr); gap: 18px; max-width: 900px; margin: 0 auto; } }
+    .card {
+      background: var(--surface); border-radius: var(--ti-image-radius); overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06); transition: transform 0.25s ease, box-shadow 0.25s ease;
+      cursor: pointer; position: relative; aspect-ratio: 1;
+    }
+    .card:active { transform: scale(0.96); }
+    .card img {
+      width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none;
+      background: linear-gradient(135deg, #e8e9e4 0%, #dcdcd6 100%);
+    }
+    .card-overlay {
+      position: absolute; bottom: 0; left: 0; right: 0; padding: 12px;
+      background: linear-gradient(to top, rgba(0,0,0,0.45), transparent);
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .card:hover .card-overlay, .card:active .card-overlay { opacity: 1; }
+    .card-name { color: #fff; font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+
+    #status {
+      text-align: center; padding: 60px 20px; color: var(--muted); font-size: 15px; font-weight: 500; grid-column: 1 / -1;
+    }
+    .empty-state { grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--muted); }
+    .empty-state-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.4; }
+    .empty-state-text { font-size: 15px; font-weight: 500; }
+
+    /* ===== 灯箱 ===== */
+    #lightbox {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 200;
+      justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s;
+    }
+    #lightbox.active { display: flex; opacity: 1; }
+    #lightbox img { max-width: 92%; max-height: 82%; object-fit: contain; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+    .lightbox-close {
+      position: absolute; top: calc(12px + var(--safe-area-inset-top)); right: calc(16px + var(--safe-area-inset-right));
+      width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.15); backdrop-filter: blur(10px);
+      border: none; color: #fff; font-size: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer;
+    }
+    .lightbox-caption {
+      position: absolute; bottom: calc(24px + var(--safe-area-inset-bottom)); left: 0; right: 0;
+      text-align: center; color: rgba(255,255,255,0.8); font-size: 14px; font-weight: 500; padding: 0 20px;
+    }
+
+    /* ===== 设置弹窗（保留） ===== */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; background-color: rgba(241,242,237,0.85); z-index: 200;
+      justify-content: center; align-items: center; backdrop-filter: blur(5px);
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-content {
+      background-color: #E8E9E4; width: 90%; max-width: 500px; border-radius: 20px; padding: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2); color: #000; display: flex; flex-direction: column; gap: 20px;
+    }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .modal-title { font-size: 24px; font-weight: 700; font-family: Impact, sans-serif; }
+    .modal-close { background: none; border: none; color: #000; font-size: 28px; cursor: pointer; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: background-color 0.3s; font-family: Impact, sans-serif; }
+    .modal-close:hover { background-color: rgba(0,0,0,0.1); }
+    .modal-section { display: flex; flex-direction: column; gap: 15px; }
+    .section-title { font-size: 18px; font-weight: 700; margin-bottom: 5px; font-family: Impact, sans-serif; }
+    .image-preview-container { display: flex; flex-direction: column; align-items: center; gap: 15px; }
+    .image-preview { width: 150px; height: 150px; background: #D8D9D4 url('Ti.png') center/cover no-repeat; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); overflow: hidden; }
+    .file-input-wrapper { position: relative; overflow: hidden; display: inline-block; width: 100%; }
+    .file-input-button { background-color: #D0D1CC; color: #000; padding: 12px 20px; border-radius: 10px; cursor: pointer; text-align: center; font-weight: 600; transition: background-color 0.3s; width: 100%; font-family: Impact, sans-serif; }
+    .file-input-button:hover { background-color: #B8B9B4; }
+    .file-input { position: absolute; left: 0; top: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
+    .text-input-container { display: flex; flex-direction: column; gap: 15px; margin-top: 15px; }
+    .text-input { background-color: #DCDDD8; border: 2px solid #C8C9C4; border-radius: 10px; padding: 12px 15px; color: #000; font-size: 16px; font-family: Impact, sans-serif; transition: border-color 0.3s; width: 100%; }
+    .text-input:focus { outline: none; border-color: #5a5a5a; }
+    .text-input::placeholder { color: rgba(0,0,0,0.5); }
+    .modal-buttons { display: flex; gap: 15px; margin-top: 10px; }
+    .modal-button { flex: 1; padding: 12px 20px; border-radius: 10px; border: none; font-weight: 600; cursor: pointer; transition: all 0.3s; font-family: Impact, sans-serif; }
+    .modal-button.save { background-color: #4CAF50; color: white; }
+    .modal-button.save:hover { background-color: #45a049; }
+    .modal-button.cancel { background-color: #B0B1AC; color: #000; }
+    .modal-button.cancel:hover { background-color: #A8A9A4; }
+    .no-scroll { overflow: hidden; }
+  </style>
 </head>
-<body>
-    <div class="container">
-        <h1>📷 我的图库</h1>
-        <p class="subtitle">自动同步 GitHub 仓库图片</p>
-        <div id="status">正在加载图片...</div>
-        <div id="gallery"></div>
+<body class="no-scroll">
+
+  <!-- 认证 -->
+  <div id="auth-container">
+    <div class="auth-button-container">
+      <button class="auth-button" id="authButton">
+        <div class="button-text-container">
+          <div class="button-main-text">Ti</div>
+          <div class="button-sub-text">GALLERY</div>
+        </div>
+      </button>
     </div>
+  </div>
 
-    <div id="lightbox" onclick="this.classList.remove('active')">
-        <img src="" alt="放大查看">
+  <!-- 画廊内容 -->
+  <div id="content-container">
+    <div class="gallery-scroll">
+      <div class="gallery-header">
+        <div>
+          <div class="gallery-title">Ti</div>
+          <div class="gallery-meta" id="galleryMeta">加载中...</div>
+        </div>
+        <button class="gallery-settings-btn" id="settingsBtn" aria-label="设置">&#9881;</button>
+      </div>
+      <div id="gallery">
+        <div id="status">正在加载作品...</div>
+      </div>
     </div>
+  </div>
 
-    <script>
-        const statusEl = document.getElementById('status');
-        const galleryEl = document.getElementById('gallery');
-        const lightbox = document.getElementById('lightbox');
-        const lightboxImg = lightbox.querySelector('img');
+  <!-- 灯箱 -->
+  <div id="lightbox">
+    <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+    <img src="" alt="预览" id="lightboxImg">
+    <div class="lightbox-caption" id="lightboxCaption"></div>
+  </div>
 
-        fetch('/images.json')
-            .then(r => {
-                if (!r.ok) throw new Error('找不到图片清单，请确认已部署');
-                return r.json();
-            })
-            .then(({ images }) => {
-                if (!images || images.length === 0) {
-                    statusEl.textContent = '暂无图片，请上传至 public/images/ 文件夹';
-                    return;
-                }
-                statusEl.style.display = 'none';
-                
-                images.forEach((img, index) => {
-                    const card = document.createElement('div');
-                    card.className = 'card';
-                    card.innerHTML = `
-                        <img src="${img.url}" loading="lazy" alt="${img.name}" onerror="this.parentElement.style.display='none'">
-                        <div class="info">
-                            <div class="name">${img.name}</div>
-                            <div class="meta">#${index + 1}</div>
-                        </div>
-                    `;
-                    card.querySelector('img').addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        lightboxImg.src = img.url;
-                        lightbox.classList.add('active');
-                    });
-                    galleryEl.appendChild(card);
-                });
-            })
-            .catch(err => {
-                statusEl.innerHTML = `<div class="error">加载失败：${err.message}</div>`;
+  <!-- 设置弹窗（保留原逻辑） -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Settings</h2>
+        <button class="modal-close" id="modalClose">&times;</button>
+      </div>
+      <div class="modal-section">
+        <h3 class="section-title">Change Picture</h3>
+        <div class="image-preview-container">
+          <div class="image-preview" id="imagePreview"></div>
+          <div class="file-input-wrapper">
+            <div class="file-input-button">Select Picture</div>
+            <input type="file" class="file-input" id="imageInput" accept="image/*">
+          </div>
+        </div>
+      </div>
+      <div class="modal-buttons">
+        <button class="modal-button cancel" id="cancelButton">Cancel</button>
+        <button class="modal-button save" id="saveButton">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ===== 原认证逻辑（完整保留） ===== */
+    const CONFIG = { webauthn: { rpName: "Ti", userName: "Ti", userDisplayName: "'Ti'", timeout: 60000 } };
+    const AppState = { isAuthenticated: false, credentialId: null };
+    const DOM = {
+      authContainer: document.getElementById('auth-container'),
+      contentContainer: document.getElementById('content-container'),
+      authButton: document.getElementById('authButton'),
+      modalOverlay: document.getElementById('modalOverlay'),
+      modalClose: document.getElementById('modalClose'),
+      imageInput: document.getElementById('imageInput'),
+      imagePreview: document.getElementById('imagePreview'),
+      saveButton: document.getElementById('saveButton'),
+      cancelButton: document.getElementById('cancelButton'),
+      settingsBtn: document.getElementById('settingsBtn')
+    };
+
+    const ModalManager = {
+      init() {
+        DOM.modalClose.addEventListener('click', () => this.hideModal());
+        DOM.cancelButton.addEventListener('click', () => this.hideModal());
+        DOM.saveButton.addEventListener('click', () => this.saveChanges());
+        DOM.imageInput.addEventListener('change', (e) => this.handleImageUpload(e));
+        DOM.modalOverlay.addEventListener('click', (e) => { if (e.target === DOM.modalOverlay) this.hideModal(); });
+      },
+      showModal() { DOM.modalOverlay.classList.add('active'); document.body.classList.add('no-scroll'); },
+      hideModal() { DOM.modalOverlay.classList.remove('active'); document.body.classList.remove('no-scroll'); },
+      handleImageUpload(event) {
+        const file = event.target.files[0];
+        if (file) { const reader = new FileReader(); reader.onload = (e) => { DOM.imagePreview.style.backgroundImage = `url(${e.target.result})`; }; reader.readAsDataURL(file); }
+      },
+      saveChanges() { this.hideModal(); }
+    };
+
+    const AuthManager = {
+      init() {
+        if (!window.PublicKeyCredential) { DOM.authButton.disabled = true; return; }
+        this.checkExistingCredentials();
+        DOM.authButton.addEventListener('click', () => this.startAuthentication());
+        this.preventScroll();
+      },
+      preventScroll() {
+        document.body.addEventListener('touchmove', (e) => { e.preventDefault(); }, { passive: false });
+        document.addEventListener('scroll', (e) => { e.preventDefault(); window.scrollTo(0, 0); });
+      },
+      checkExistingCredentials() {
+        try { const saved = localStorage.getItem('webauthn_credential_id'); if (saved) AppState.credentialId = Uint8Array.from(saved.split(',').map(Number)); }
+        catch (e) { this.clearInvalidCredential(); }
+      },
+      clearInvalidCredential() { localStorage.removeItem('webauthn_credential_id'); AppState.credentialId = null; },
+      resetAuthButtonState() { DOM.authButton.disabled = false; DOM.authButton.classList.remove('auth-button-loading'); },
+      async startAuthentication() {
+        try {
+          DOM.authButton.disabled = true; DOM.authButton.classList.add('auth-button-loading');
+          if (AppState.credentialId) await this.authenticateWithCredential();
+          else await this.registerNewCredential();
+        } catch (error) { this.clearInvalidCredential(); this.resetAuthButtonState(); }
+      },
+      async registerNewCredential() {
+        const challenge = new Uint8Array(32); crypto.getRandomValues(challenge);
+        const publicKey = {
+          challenge, rp: { id: window.location.hostname, name: CONFIG.webauthn.rpName },
+          user: { id: new Uint8Array(16), name: CONFIG.webauthn.userName, displayName: CONFIG.webauthn.userDisplayName },
+          pubKeyCredParams: [{ type: "public-key", alg: -7 }],
+          authenticatorSelection: { userVerification: "required", requireResidentKey: false },
+          timeout: CONFIG.webauthn.timeout, attestation: "none"
+        };
+        const credential = await navigator.credentials.create({ publicKey });
+        if (credential && credential.rawId) {
+          AppState.credentialId = new Uint8Array(credential.rawId);
+          localStorage.setItem('webauthn_credential_id', Array.from(AppState.credentialId).join(','));
+        }
+        this.onAuthenticationSuccess();
+      },
+      async authenticateWithCredential() {
+        const challenge = new Uint8Array(32); crypto.getRandomValues(challenge);
+        const publicKey = {
+          challenge, rpId: window.location.hostname,
+          allowCredentials: [{ type: "public-key", id: AppState.credentialId, transports: ["internal"] }],
+          userVerification: "required", timeout: CONFIG.webauthn.timeout
+        };
+        const assertion = await navigator.credentials.get({ publicKey });
+        if (assertion) this.onAuthenticationSuccess(); else throw new Error("Authentication failed");
+      },
+      onAuthenticationSuccess() {
+        AppState.isAuthenticated = true;
+        DOM.authContainer.style.opacity = '0';
+        setTimeout(() => {
+          DOM.authContainer.style.display = 'none';
+          DOM.contentContainer.style.display = 'block';
+          DOM.contentContainer.offsetHeight;
+          DOM.contentContainer.classList.add('active');
+          document.body.classList.remove('no-scroll');
+          loadGallery();
+        }, 300);
+      }
+    };
+
+    const UI = { showContent: () => { /* 由 AuthManager 统一处理过渡 */ } };
+
+    function initApp() { AuthManager.init(); ModalManager.init(); DOM.settingsBtn.addEventListener('click', () => ModalManager.showModal()); }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initApp); else initApp();
+    window.addEventListener('scroll', preventScroll, { passive: false });
+    window.addEventListener('touchmove', preventScroll, { passive: false });
+    function preventScroll(e) { e.preventDefault(); window.scrollTo(0, 0); return false; }
+
+    /* ===== 画廊逻辑（新增） ===== */
+    const galleryEl = document.getElementById('gallery');
+    const statusEl = document.getElementById('status');
+    const metaEl = document.getElementById('galleryMeta');
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightboxImg');
+    const lightboxCaption = document.getElementById('lightboxCaption');
+
+    function closeLightbox() { lightbox.classList.remove('active'); }
+    lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
+
+    function loadGallery() {
+      fetch('/images.json')
+        .then(r => r.ok ? r.json() : Promise.reject('无法读取图片索引'))
+        .then(({ images }) => {
+          if (!images || images.length === 0) {
+            galleryEl.innerHTML = `
+              <div class="empty-state">
+                <div class="empty-state-icon">&#127748;</div>
+                <div class="empty-state-text">暂无插画<br>上传图片到 public/images/ 即可自动展示</div>
+              </div>`;
+            metaEl.textContent = '0 works';
+            return;
+          }
+          metaEl.textContent = `${images.length} work${images.length > 1 ? 's' : ''}`;
+          galleryEl.innerHTML = '';
+          images.forEach((img, idx) => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+              <img src="${img.url}" loading="lazy" alt="${img.name}" onerror="this.parentElement.style.display='none'">
+              <div class="card-overlay"><div class="card-name">${img.name}</div></div>
+            `;
+            card.addEventListener('click', () => {
+              lightboxImg.src = img.url;
+              lightboxCaption.textContent = img.name;
+              lightbox.classList.add('active');
             });
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') lightbox.classList.remove('active');
+            galleryEl.appendChild(card);
+          });
+        })
+        .catch(err => {
+          galleryEl.innerHTML = `<div class="empty-state"><div class="empty-state-icon">&#128220;</div><div class="empty-state-text">索引加载失败<br>${err}</div></div>`;
+          metaEl.textContent = 'Error';
         });
-    </script>
+    }
+  </script>
 </body>
 </html>
