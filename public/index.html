@@ -38,8 +38,6 @@
       font-family: Impact;
       color: #000000;
       font-weight: 700;
-      position: relative;
-      touch-action: none;
       position: fixed;
       top: 0;
       left: 0;
@@ -142,26 +140,11 @@
       width: 100%;
       text-align: center;
     }
-    .button-sub-text {
-      font-size: 0.35em;
-      letter-spacing: 3px;
-      opacity: 0.8;
-      width: 100%;
-      text-align: center;
-    }
     .no-scroll {
-      overflow: hidden;
-    }
-    @supports not (top: env(safe-area-inset-top)) {
-      :root {
-        --safe-area-inset-top: constant(safe-area-inset-top, 0px);
-        --safe-area-inset-bottom: constant(safe-area-inset-bottom, 0px);
-        --safe-area-inset-left: constant(safe-area-inset-left, 0px);
-        --safe-area-inset-right: constant(safe-area-inset-right, 0px);
-      }
+      overflow: hidden !important;
     }
 
-    /* ===== Gallery (replaces old empty content) ===== */
+    /* ===== Gallery ===== */
     #content-container {
       display: none;
       width: 100%;
@@ -249,7 +232,7 @@
       letter-spacing: 1px;
     }
 
-    /* Lightbox */
+    /* ===== Lightbox ===== */
     #lightbox {
       display: none;
       position: fixed;
@@ -270,7 +253,7 @@
     }
     #lightbox img {
       max-width: 100%;
-      max-height: 82vh;
+      max-height: 78vh;
       object-fit: contain;
       border-radius: 12px;
       box-shadow: 0 24px 70px rgba(0,0,0,0.1);
@@ -297,17 +280,38 @@
       transform: scale(0.88);
       background: rgba(0,0,0,0.12);
     }
-    #lightbox-caption {
+    .lightbox-footer {
       position: absolute;
       bottom: max(20px, var(--safe-area-inset-bottom));
       left: 0;
       right: 0;
       text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 0 20px;
+    }
+    #lightbox-caption {
       font-family: Impact, sans-serif;
       font-size: 12px;
       letter-spacing: 1px;
-      opacity: 0.4;
-      padding: 0 20px;
+      opacity: 0.45;
+    }
+    #lightbox-brand {
+      font-family: 'Snell Roundhand', 'Snell Roundhand Black', cursive;
+      font-size: 13px;
+      opacity: 0.35;
+      letter-spacing: 0.5px;
+    }
+
+    @supports not (top: env(safe-area-inset-top)) {
+      :root {
+        --safe-area-inset-top: constant(safe-area-inset-top, 0px);
+        --safe-area-inset-bottom: constant(safe-area-inset-bottom, 0px);
+        --safe-area-inset-left: constant(safe-area-inset-left, 0px);
+        --safe-area-inset-right: constant(safe-area-inset-right, 0px);
+      }
     }
   </style>
 </head>
@@ -333,7 +337,10 @@
   <div id="lightbox">
     <button id="lightbox-close">&times;</button>
     <img src="" alt="Preview" id="lightbox-img">
-    <div id="lightbox-caption"></div>
+    <div class="lightbox-footer">
+      <div id="lightbox-caption"></div>
+      <div id="lightbox-brand">Ti Illustrations</div>
+    </div>
   </div>
 
   <script>
@@ -360,6 +367,13 @@
       lightboxCaption: document.getElementById('lightbox-caption')
     };
 
+    // Named handlers so we can remove them later
+    function blockScroll(e) {
+      e.preventDefault();
+      window.scrollTo(0, 0);
+      return false;
+    }
+
     const AuthManager = {
       init: function() {
         if (!window.PublicKeyCredential) {
@@ -371,13 +385,14 @@
         this.preventScroll();
       },
       preventScroll: function() {
-        document.body.addEventListener('touchmove', function(e) {
-          e.preventDefault();
-        }, { passive: false });
-        document.addEventListener('scroll', function(e) {
-          e.preventDefault();
-          window.scrollTo(0, 0);
-        });
+        document.body.addEventListener('touchmove', blockScroll, { passive: false });
+        window.addEventListener('scroll', blockScroll, { passive: false });
+        window.addEventListener('touchmove', blockScroll, { passive: false });
+      },
+      allowScroll: function() {
+        document.body.removeEventListener('touchmove', blockScroll, { passive: false });
+        window.removeEventListener('scroll', blockScroll, { passive: false });
+        window.removeEventListener('touchmove', blockScroll, { passive: false });
       },
       checkExistingCredentials: function() {
         try {
@@ -477,9 +492,10 @@
         setTimeout(() => {
           DOM.authContainer.style.display = "none";
           DOM.contentContainer.style.display = "block";
+          document.body.classList.remove('no-scroll');
           document.body.style.position = "relative";
           document.body.style.overflow = "auto";
-          document.body.classList.remove('no-scroll');
+          AuthManager.allowScroll();
           DOM.contentContainer.offsetHeight;
           setTimeout(() => {
             DOM.contentContainer.classList.add('active');
@@ -520,11 +536,11 @@
         DOM.lightboxImg.src = url;
         DOM.lightboxCaption.textContent = name;
         DOM.lightbox.classList.add('active');
-        document.body.style.overflow = "hidden";
+        document.body.classList.add('no-scroll');
       },
       close: function() {
         DOM.lightbox.classList.remove('active');
-        document.body.style.overflow = "auto";
+        document.body.classList.remove('no-scroll');
         setTimeout(() => DOM.lightboxImg.src = '', 300);
       }
     };
@@ -544,14 +560,6 @@
       document.addEventListener('DOMContentLoaded', initApp);
     } else {
       initApp();
-    }
-
-    window.addEventListener('scroll', preventScroll, { passive: false });
-    window.addEventListener('touchmove', preventScroll, { passive: false });
-    function preventScroll(e) {
-      e.preventDefault();
-      window.scrollTo(0, 0);
-      return false;
     }
   </script>
 </body>
