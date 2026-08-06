@@ -2,11 +2,11 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Ti">
-  <meta name="description" content="Ti Illustrations">
+  <meta name="description" content="Ti">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="apple-touch-icon" href="Ti.png">
   <link rel="apple-touch-startup-image" href="Ti.png">
@@ -30,133 +30,204 @@
     }
     body {
       width: 100%;
+      height: 100%;
       min-height: 100vh;
       min-height: -webkit-fill-available;
       overflow: hidden;
       background: #F1F2ED;
-      font-family: Impact, 'Arial Black', sans-serif;
+      font-family: Impact;
       color: #000000;
       font-weight: 700;
       position: relative;
+      touch-action: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
     }
     :root {
       --safe-area-inset-top: env(safe-area-inset-top, 0px);
       --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
       --safe-area-inset-left: env(safe-area-inset-left, 0px);
       --safe-area-inset-right: env(safe-area-inset-right, 0px);
-      --radius: 14px;
+      --Ti-image-radius: 50px;
     }
-
-    /* ===== Auth Screen ===== */
     #auth-container {
       position: fixed;
-      inset: 0;
-      background: #F1F2ED;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #F1F2ED;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      padding: var(--safe-area-inset-top) var(--safe-area-inset-right) var(--safe-area-inset-bottom) var(--safe-area-inset-left);
+      padding-top: var(--safe-area-inset-top);
+      padding-bottom: var(--safe-area-inset-bottom);
+      padding-left: var(--safe-area-inset-left);
+      padding-right: var(--safe-area-inset-right);
       z-index: 100;
-      transition: opacity 0.4s ease;
+      overflow: hidden;
+      transition: opacity 0.3s ease;
+      box-sizing: border-box;
+    }
+    .auth-button-container {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
     }
     .auth-button {
       background: none;
       color: #000000;
       border: none;
-      padding: 20px;
-      font-size: 80px;
+      border-radius: 0;
+      padding: 20px 15px;
+      font-size: 72px;
       font-weight: 400;
       cursor: pointer;
       transition: all 0.3s ease;
       font-family: 'Snell Roundhand', 'Snell Roundhand Black', cursive;
-      letter-spacing: -2px;
-      line-height: 0.9;
-      text-shadow: 0 0 18px rgba(0,0,0,0.25);
       position: relative;
+      overflow: hidden;
+      letter-spacing: -1px;
+      line-height: 0.9;
+      text-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
+      width: 75%;
+      max-width: 400px;
     }
-    .auth-button:active { transform: scale(0.92); opacity: 0.6; }
-    .auth-button:disabled { opacity: 0.4; cursor: not-allowed; }
+    .auth-button:active {
+      transform: scale(0.95);
+      opacity: 0.7;
+    }
+    .auth-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .auth-button-loading .button-text-container {
+      opacity: 0;
+    }
     .auth-button-loading::after {
       content: "";
       position: absolute;
-      width: 24px; height: 24px;
-      top: 50%; left: 50%;
-      margin: -12px 0 0 -12px;
-      border: 2px solid #000;
-      border-top-color: transparent;
+      width: 20px;
+      height: 20px;
+      top: 50%;
+      left: 50%;
+      margin-left: -10px;
+      margin-top: -10px;
+      border: 2px solid #000000;
       border-radius: 50%;
-      animation: spin 0.8s linear infinite;
+      border-top-color: transparent;
+      animation: spin 1s ease infinite;
     }
-    .button-sub {
-      display: block;
-      font-size: 11px;
-      letter-spacing: 4px;
-      opacity: 0.5;
-      margin-top: 6px;
-      font-family: Impact, sans-serif;
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    .button-text-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+    }
+    .button-main-text {
+      font-size: 1em;
+      margin-bottom: 2px;
+      width: 100%;
+      text-align: center;
+    }
+    .button-sub-text {
+      font-size: 0.35em;
+      letter-spacing: 3px;
+      opacity: 0.8;
+      width: 100%;
+      text-align: center;
+    }
+    .no-scroll {
+      overflow: hidden;
+    }
+    @supports not (top: env(safe-area-inset-top)) {
+      :root {
+        --safe-area-inset-top: constant(safe-area-inset-top, 0px);
+        --safe-area-inset-bottom: constant(safe-area-inset-bottom, 0px);
+        --safe-area-inset-left: constant(safe-area-inset-left, 0px);
+        --safe-area-inset-right: constant(safe-area-inset-right, 0px);
+      }
+    }
 
-    /* ===== Gallery ===== */
+    /* ===== Gallery (replaces old empty content) ===== */
     #content-container {
       display: none;
       width: 100%;
       min-height: 100vh;
       background: #F1F2ED;
       opacity: 0;
-      transition: opacity 0.4s ease;
+      transition: opacity 0.3s ease;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
-      padding: var(--safe-area-inset-top) var(--safe-area-inset-right) calc(24px + var(--safe-area-inset-bottom)) var(--safe-area-inset-left);
+      padding-top: var(--safe-area-inset-top);
+      padding-bottom: calc(24px + var(--safe-area-inset-bottom));
+      padding-left: var(--safe-area-inset-left);
+      padding-right: var(--safe-area-inset-right);
+      box-sizing: border-box;
+      position: relative;
     }
-    #content-container.active { opacity: 1; }
-
+    #content-container.active {
+      opacity: 1;
+    }
     .gallery-header {
       text-align: center;
       padding: 28px 20px 20px;
     }
     .gallery-header h1 {
-      font-family: 'Snell Roundhand', cursive;
-      font-size: 48px;
+      font-family: 'Snell Roundhand', 'Snell Roundhand Black', cursive;
+      font-size: 64px;
       font-weight: 400;
-      text-shadow: 0 2px 12px rgba(0,0,0,0.1);
+      text-shadow: 0 0 15px rgba(0,0,0,0.15);
+      line-height: 0.9;
     }
     .gallery-header p {
+      font-family: Impact, sans-serif;
       font-size: 11px;
       letter-spacing: 3px;
-      opacity: 0.45;
-      margin-top: 4px;
+      opacity: 0.4;
+      margin-top: 8px;
       text-transform: uppercase;
     }
-
     .gallery-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 10px;
-      padding: 0 16px;
+      padding: 0 16px 24px;
     }
     @media (min-width: 768px) {
       .gallery-grid {
         grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
         gap: 16px;
-        padding: 0 32px;
+        padding: 0 32px 32px;
         max-width: 1200px;
         margin: 0 auto;
       }
     }
-
     .gallery-item {
       position: relative;
       aspect-ratio: 1;
-      border-radius: var(--radius);
+      border-radius: 16px;
       overflow: hidden;
       background: #E4E5E0;
       cursor: pointer;
       transition: transform 0.25s ease, box-shadow 0.25s ease;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     }
-    .gallery-item:active { transform: scale(0.96); }
+    .gallery-item:active {
+      transform: scale(0.96);
+    }
     .gallery-item img {
       width: 100%;
       height: 100%;
@@ -165,18 +236,20 @@
       opacity: 0;
       transition: opacity 0.4s ease;
     }
-    .gallery-item img.loaded { opacity: 1; }
-
+    .gallery-item img.loaded {
+      opacity: 1;
+    }
     .gallery-empty {
       grid-column: 1 / -1;
       text-align: center;
-      padding: 80px 20px;
+      padding: 100px 20px;
       opacity: 0.35;
+      font-family: Impact, sans-serif;
       font-size: 13px;
       letter-spacing: 1px;
     }
 
-    /* ===== Lightbox ===== */
+    /* Lightbox */
     #lightbox {
       display: none;
       position: fixed;
@@ -191,23 +264,27 @@
       transition: opacity 0.3s ease;
       padding: max(20px, var(--safe-area-inset-top)) max(20px, var(--safe-area-inset-right)) max(20px, var(--safe-area-inset-bottom)) max(20px, var(--safe-area-inset-left));
     }
-    #lightbox.active { display: flex; opacity: 1; }
+    #lightbox.active {
+      display: flex;
+      opacity: 1;
+    }
     #lightbox img {
       max-width: 100%;
       max-height: 82vh;
       object-fit: contain;
-      border-radius: 10px;
-      box-shadow: 0 24px 70px rgba(0,0,0,0.12);
+      border-radius: 12px;
+      box-shadow: 0 24px 70px rgba(0,0,0,0.1);
     }
     #lightbox-close {
       position: absolute;
       top: max(16px, var(--safe-area-inset-top));
       right: max(16px, var(--safe-area-inset-right));
-      width: 40px; height: 40px;
+      width: 44px;
+      height: 44px;
       background: rgba(0,0,0,0.06);
       border: none;
       border-radius: 50%;
-      font-size: 22px;
+      font-size: 24px;
       color: #000;
       cursor: pointer;
       display: flex;
@@ -216,50 +293,43 @@
       font-family: Impact, sans-serif;
       transition: transform 0.15s, background 0.2s;
     }
-    #lightbox-close:active { transform: scale(0.88); background: rgba(0,0,0,0.12); }
+    #lightbox-close:active {
+      transform: scale(0.88);
+      background: rgba(0,0,0,0.12);
+    }
     #lightbox-caption {
       position: absolute;
       bottom: max(20px, var(--safe-area-inset-bottom));
-      left: 0; right: 0;
+      left: 0;
+      right: 0;
       text-align: center;
+      font-family: Impact, sans-serif;
       font-size: 12px;
       letter-spacing: 1px;
-      opacity: 0.45;
+      opacity: 0.4;
       padding: 0 20px;
-    }
-
-    .no-scroll { overflow: hidden; }
-
-    @supports not (top: env(safe-area-inset-top)) {
-      :root {
-        --safe-area-inset-top: constant(safe-area-inset-top, 0px);
-        --safe-area-inset-bottom: constant(safe-area-inset-bottom, 0px);
-        --safe-area-inset-left: constant(safe-area-inset-left, 0px);
-        --safe-area-inset-right: constant(safe-area-inset-right, 0px);
-      }
     }
   </style>
 </head>
 <body class="no-scroll">
-
-  <!-- Auth -->
   <div id="auth-container">
-    <button class="auth-button" id="authButton">
-      Ti
-      <span class="button-sub">ILLUSTRATIONS</span>
-    </button>
+    <div class="auth-button-container">
+      <button class="auth-button" id="authButton">
+        <div class="button-text-container">
+          <div class="button-main-text">Ti</div>
+        </div>
+      </button>
+    </div>
   </div>
 
-  <!-- Gallery -->
   <div id="content-container">
     <div class="gallery-header">
       <h1>Ti</h1>
-      <p>Illustration Collection</p>
+      <p>Illustrations</p>
     </div>
     <div class="gallery-grid" id="gallery"></div>
   </div>
 
-  <!-- Lightbox -->
   <div id="lightbox">
     <button id="lightbox-close">&times;</button>
     <img src="" alt="Preview" id="lightbox-img">
@@ -275,7 +345,10 @@
         timeout: 60000
       }
     };
-    const AppState = { isAuthenticated: false, credentialId: null };
+    const AppState = {
+      isAuthenticated: false,
+      credentialId: null
+    };
     const DOM = {
       authContainer: document.getElementById('auth-container'),
       contentContainer: document.getElementById('content-container'),
@@ -287,103 +360,199 @@
       lightboxCaption: document.getElementById('lightbox-caption')
     };
 
-    // ===== Auth Manager =====
     const AuthManager = {
-      init() {
-        if (!window.PublicKeyCredential) { DOM.authButton.disabled = true; return; }
-        try {
-          const saved = localStorage.getItem('webauthn_credential_id');
-          if (saved) AppState.credentialId = Uint8Array.from(saved.split(',').map(Number));
-        } catch(e) { this.clearCred(); }
-        DOM.authButton.addEventListener('click', () => this.start());
+      init: function() {
+        if (!window.PublicKeyCredential) {
+          DOM.authButton.disabled = true;
+          return;
+        }
+        this.checkExistingCredentials();
+        DOM.authButton.addEventListener('click', () => this.startAuthentication());
+        this.preventScroll();
       },
-      clearCred() { localStorage.removeItem('webauthn_credential_id'); AppState.credentialId = null; },
-      reset() { DOM.authButton.disabled = false; DOM.authButton.classList.remove('auth-button-loading'); },
-      async start() {
+      preventScroll: function() {
+        document.body.addEventListener('touchmove', function(e) {
+          e.preventDefault();
+        }, { passive: false });
+        document.addEventListener('scroll', function(e) {
+          e.preventDefault();
+          window.scrollTo(0, 0);
+        });
+      },
+      checkExistingCredentials: function() {
+        try {
+          const savedCredentialId = localStorage.getItem('webauthn_credential_id');
+          if (savedCredentialId) {
+            AppState.credentialId = Uint8Array.from(savedCredentialId.split(',').map(Number));
+          }
+        } catch (error) {
+          this.clearInvalidCredential();
+        }
+      },
+      clearInvalidCredential: function() {
+        localStorage.removeItem('webauthn_credential_id');
+        AppState.credentialId = null;
+      },
+      resetAuthButtonState: function() {
+        DOM.authButton.disabled = false;
+        DOM.authButton.classList.remove('auth-button-loading');
+      },
+      startAuthentication: async function() {
         try {
           DOM.authButton.disabled = true;
           DOM.authButton.classList.add('auth-button-loading');
-          AppState.credentialId ? await this.authenticate() : await this.register();
-        } catch(err) { this.clearCred(); this.reset(); }
+          if (AppState.credentialId) {
+            await this.authenticateWithCredential();
+          } else {
+            await this.registerNewCredential();
+          }
+        } catch (error) {
+          this.clearInvalidCredential();
+          this.resetAuthButtonState();
+        }
       },
-      async register() {
-        const ch = new Uint8Array(32); crypto.getRandomValues(ch);
-        const cred = await navigator.credentials.create({ publicKey: {
-          challenge: ch, rp: { id: location.hostname, name: CONFIG.webauthn.rpName },
-          user: { id: new Uint8Array(16), name: CONFIG.webauthn.userName, displayName: CONFIG.webauthn.userDisplayName },
-          pubKeyCredParams: [{type:"public-key",alg:-7}],
-          authenticatorSelection: { userVerification: "required" },
-          timeout: CONFIG.webauthn.timeout, attestation: "none"
-        }});
-        if (cred?.rawId) {
-          AppState.credentialId = new Uint8Array(cred.rawId);
+      registerNewCredential: async function() {
+        const challenge = new Uint8Array(32);
+        crypto.getRandomValues(challenge);
+        const publicKey = {
+          challenge: challenge,
+          rp: {
+            id: window.location.hostname,
+            name: CONFIG.webauthn.rpName
+          },
+          user: {
+            id: new Uint8Array(16),
+            name: CONFIG.webauthn.userName,
+            displayName: CONFIG.webauthn.userDisplayName
+          },
+          pubKeyCredParams: [
+            { type: "public-key", alg: -7 }
+          ],
+          authenticatorSelection: {
+            userVerification: "required",
+            requireResidentKey: false
+          },
+          timeout: CONFIG.webauthn.timeout,
+          attestation: "none"
+        };
+        const credential = await navigator.credentials.create({ publicKey: publicKey });
+        if (credential && credential.rawId) {
+          AppState.credentialId = new Uint8Array(credential.rawId);
           localStorage.setItem('webauthn_credential_id', Array.from(AppState.credentialId).join(','));
         }
-        this.onSuccess();
+        this.onAuthenticationSuccess();
       },
-      async authenticate() {
-        const ch = new Uint8Array(32); crypto.getRandomValues(ch);
-        await navigator.credentials.get({ publicKey: {
-          challenge: ch, rpId: location.hostname,
-          allowCredentials: [{ type:"public-key", id: AppState.credentialId, transports:["internal"] }],
-          userVerification: "required", timeout: CONFIG.webauthn.timeout
-        }});
-        this.onSuccess();
+      authenticateWithCredential: async function() {
+        const challenge = new Uint8Array(32);
+        crypto.getRandomValues(challenge);
+        const publicKey = {
+          challenge: challenge,
+          rpId: window.location.hostname,
+          allowCredentials: [
+            {
+              type: "public-key",
+              id: AppState.credentialId,
+              transports: ["internal"]
+            }
+          ],
+          userVerification: "required",
+          timeout: CONFIG.webauthn.timeout
+        };
+        const assertion = await navigator.credentials.get({ publicKey: publicKey });
+        if (assertion) {
+          this.onAuthenticationSuccess();
+        } else {
+          throw new Error("Authentication failed");
+        }
       },
-      onSuccess() {
+      onAuthenticationSuccess: function() {
         AppState.isAuthenticated = true;
-        DOM.authContainer.style.opacity = '0';
-        setTimeout(() => {
-          DOM.authContainer.style.display = 'none';
-          DOM.contentContainer.style.display = 'block';
-          document.body.classList.remove('no-scroll');
-          requestAnimationFrame(() => DOM.contentContainer.classList.add('active'));
-          Gallery.load();
-        }, 350);
+        UI.showContent();
       }
     };
 
-    // ===== Gallery =====
+    const UI = {
+      showContent: function() {
+        DOM.authContainer.style.opacity = "0";
+        setTimeout(() => {
+          DOM.authContainer.style.display = "none";
+          DOM.contentContainer.style.display = "block";
+          document.body.style.position = "relative";
+          document.body.style.overflow = "auto";
+          document.body.classList.remove('no-scroll');
+          DOM.contentContainer.offsetHeight;
+          setTimeout(() => {
+            DOM.contentContainer.classList.add('active');
+          }, 50);
+          Gallery.load();
+        }, 300);
+      }
+    };
+
     const Gallery = {
-      load() {
+      load: function() {
         fetch('/images.json')
           .then(r => r.ok ? r.json() : Promise.reject())
           .then(({ images }) => {
-            if (!images?.length) { DOM.gallery.innerHTML = '<div class="gallery-empty">NO ILLUSTRATIONS YET</div>'; return; }
+            if (!images || images.length === 0) {
+              DOM.gallery.innerHTML = '<div class="gallery-empty">NO ILLUSTRATIONS YET</div>';
+              return;
+            }
             images.forEach(img => {
               const item = document.createElement('div');
               item.className = 'gallery-item';
               const el = document.createElement('img');
-              el.src = img.url; el.alt = img.name; el.loading = 'lazy';
+              el.src = img.url;
+              el.alt = img.name;
+              el.loading = 'lazy';
               el.onload = () => el.classList.add('loaded');
               el.onerror = () => item.remove();
               item.appendChild(el);
-              item.addEventListener('click', () => this.open(img.url, img.name));
+              item.addEventListener('click', () => Gallery.open(img.url, img.name));
               DOM.gallery.appendChild(item);
             });
           })
-          .catch(() => { DOM.gallery.innerHTML = '<div class="gallery-empty">UNABLE TO LOAD</div>'; });
+          .catch(() => {
+            DOM.gallery.innerHTML = '<div class="gallery-empty">UNABLE TO LOAD IMAGES</div>';
+          });
       },
-      open(url, name) {
+      open: function(url, name) {
         DOM.lightboxImg.src = url;
         DOM.lightboxCaption.textContent = name;
         DOM.lightbox.classList.add('active');
-        document.body.classList.add('no-scroll');
+        document.body.style.overflow = "hidden";
       },
-      close() {
+      close: function() {
         DOM.lightbox.classList.remove('active');
-        document.body.classList.remove('no-scroll');
+        document.body.style.overflow = "auto";
         setTimeout(() => DOM.lightboxImg.src = '', 300);
       }
     };
 
     DOM.lightboxClose.addEventListener('click', () => Gallery.close());
-    DOM.lightbox.addEventListener('click', e => { if(e.target === DOM.lightbox) Gallery.close(); });
-    document.addEventListener('keydown', e => { if(e.key === 'Escape') Gallery.close(); });
+    DOM.lightbox.addEventListener('click', e => {
+      if (e.target === DOM.lightbox) Gallery.close();
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') Gallery.close();
+    });
 
-    // ===== Init =====
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => AuthManager.init());
-    else AuthManager.init();
+    function initApp() {
+      AuthManager.init();
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initApp);
+    } else {
+      initApp();
+    }
+
+    window.addEventListener('scroll', preventScroll, { passive: false });
+    window.addEventListener('touchmove', preventScroll, { passive: false });
+    function preventScroll(e) {
+      e.preventDefault();
+      window.scrollTo(0, 0);
+      return false;
+    }
   </script>
 </body>
 </html>
